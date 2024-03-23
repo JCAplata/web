@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirmar Pedido</title>
+    <style>
+        body {
+        background: linear-gradient(45deg,rgb(255, 255, 255),green,yellow,black);
+            background-size: 400% 400%;
+            position: relative;
+            animation: cambiar 10s ease-in-out infinite;
+    }
+        .container {
+            max-width: 500px;
+            margin: 50px auto;
+            padding: 20px;
+            border: 1px solid #000000;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 9.0);
+            background-color: #ffffff;
+        }
+
+        input[type="text"], select {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #000000;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        button {
+            background: linear-gradient(45deg,rgb(255, 255, 255),green,yellow,black);
+            background-size: 400% 400%;
+            position: relative;
+            animation: cambiar 10s ease-in-out infinite;
+            color: rgb(0, 0, 0);
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        @keyframes cambiar {
+            0% {background-position: 0 50%;}
+            50% {background-position: 100% 50%;}
+            100% {background-position: 0 50%;}
+        }
+        #qrNequi, #qrDaviplata {
+            width: 200px; 
+            height: auto;
+            display: block; 
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>datos del envio</h2>
+        <form id="pedidoForm">
+            <input type="text" id="direccion" placeholder="Dirección">
+            <select id="tipoVivienda" onchange="mostrarNumeroCasa()">
+                <option value="casa">Casa</option>
+                <option value="conjunto">Conjunto</option>
+            </select>
+            <input type="text" id="numeroCasa" placeholder="Número de casa o apartamento" style="display: none;">
+            <input type="text" id="telefono" placeholder="Teléfono">
+            <input type="text" id="nombre" placeholder="Nombre de quien recibe">
+            <select id="metodoPago" onchange="mostrarSubMetodoPago()">
+                <option value="efectivo">Efectivo</option>
+                <option value="datafono">Datafono</option>
+                <option value="pago_online">Pago Online</option>
+            </select>
+            <select id="subMetodoPago" style="display: none;" onchange="mostrarSubMetodoPago()">
+                <option value="nequi">Nequi</option>
+                <option value="daviplata">Daviplata</option>
+            </select>
+            <div id="qrs" style="display: none;">
+                <img id="qrNequi" src="QRnequi.jpg" style="display: none;">
+                <img id="qrDaviplata" src="QRdos.jpg" style="display: none;">
+                <input type="file" id="comprobantePago" accept="image/*" style="display: none;">
+                <button type="button" onclick="adjuntarComprobante()">Adjuntar Captura</button>
+            </div>
+            <button type="button" onclick="goBack()">atras</button>
+            <button type="button" onclick="confirmarPedido()">Confirmar Pedido</button>
+        </form>
+    </div>
+
+    <script>
+        function goBack() {
+        window.history.back();
+    }
+        function mostrarNumeroCasa() {
+            var tipoVivienda = document.getElementById('tipoVivienda').value;
+            var numeroCasaInput = document.getElementById('numeroCasa');
+            if (tipoVivienda === 'conjunto') {
+                numeroCasaInput.style.display = 'block';
+            } else {
+                numeroCasaInput.style.display = 'none';
+            }
+        }
+        
+        function mostrarSubMetodoPago() {
+            var metodoPago = document.getElementById('metodoPago').value;
+            var subMetodoPago = document.getElementById('subMetodoPago');
+            var qrs = document.getElementById('qrs');
+            var qrNequi = document.getElementById('qrNequi');
+            var qrDaviplata = document.getElementById('qrDaviplata');
+
+            if (metodoPago === 'pago_online') {
+                subMetodoPago.style.display = 'block';
+                qrs.style.display = 'block';
+            if (subMetodoPago.value === 'nequi') {
+                    qrNequi.style.display = 'block';
+                    qrDaviplata.style.display = 'none';
+                } 
+            else if (subMetodoPago.value === 'daviplata') {
+                    qrNequi.style.display = 'none';
+                    qrDaviplata.style.display = 'block';
+                }
+            }
+            else {
+                subMetodoPago.style.display = 'none';
+                qrs.style.display = 'none';
+                qrNequi.style.display = 'none';
+                qrDaviplata.style.display = 'none';
+            }
+        }
+        function adjuntarComprobante() {
+        var comprobanteInput = document.getElementById('comprobantePago');
+        comprobanteInput.click(); 
+        }
+
+        function confirmarPedido() {
+    var direccion = document.getElementById('direccion').value;
+    var telefono = document.getElementById('telefono').value;
+    var nombre = document.getElementById('nombre').value;
+    var telefonoPattern = /^\d{10}$/;
+    var nombrePattern = /^[A-Za-zÁÉÍÓÚáéíóúñÑ\s]+$/;
+
+    if (!telefonoPattern.test(telefono)) {
+        alert('Por favor ingresa un número de teléfono válido');
+        return;
+    }
+
+    if (!nombrePattern.test(nombre)) {
+        alert('Por favor ingresa un nombre válido.');
+        return;
+    }
+
+    if (direccion === '' || telefono === '' || nombre === '') {
+        alert('Por favor completa todos los campos.');
+        return;
+    }
+
+    var metodoPago = document.getElementById('metodoPago').value;
+
+    if (metodoPago === 'pago_online') {
+        var comprobanteInput = document.getElementById('comprobantePago');
+        if (comprobanteInput.files.length === 0) {
+            alert('Por favor adjunte el comprobante de pago.');
+            return;
+        }
+    }
+
+    
+    alert('Solicitud de pedido exitosa');
+    window.location.href = 'index.html';
+    }
+    </script>
+</body>
+</html>
